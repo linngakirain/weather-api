@@ -1,6 +1,13 @@
-# Weather API - COMP3011 Coursework
+# Weather API - COMP3011 Coursework (UoL)
 
 A RESTful weather API with user authentication, favorites, and weather alerts.
+
+## Deployment
+
+The API is deployed on PythonAnywhere:
+
+- Base URL: https://rainl.pythonanywhere.com/api/
+- Example: `GET https://rainl.pythonanywhere.com/api/pollution/?lat=48.85&lon=2.35`
 
 ## Features
 - User registration/login/logout

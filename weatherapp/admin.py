@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import City, FavoriteLocation, WeatherAlert
 
-# Register your models here.
+admin.site.register(City)
+admin.site.register(FavoriteLocation)
+admin.site.register(WeatherAlert)

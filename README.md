@@ -1,6 +1,6 @@
 # Weather API - COMP3011 Coursework (UoL)
 
-A RESTful weather API with user authentication, favorites, and weather alerts.
+A RESTful weather API with user authentication, favorites, weather alerts, daily summary, and weather history.
 
 ## Deployment
 

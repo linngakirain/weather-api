@@ -23,7 +23,7 @@ cd weather
 #### Set up environment variables
 Create a `.env` file in the project root:
 ```
-   cp .env.sample .env
+cp .env.sample .env
 ```
 
 #### Run database migrations
@@ -48,28 +48,28 @@ python manage.py runserver
 ## API Endpoints
 
 ### Authentication
-POST /api/register/ - Register new user
-POST /api/login/ - Login user
-POST /api/logout/ - Logout user
-GET /api/check-auth/ - Check login status
+- **POST** ` /api/register/` - Register new user
+- **POST** ` /api/login/` - Login user
+- **POST** ` /api/logout/` - Logout user
+- **GET** ` /api/check-auth/` - Check login status
 
 ### Weather Data
-GET /api/search/?q=London - Search cities
-GET /api/weather/?lat=48.85&lon=2.35 - Current weather
-GET /api/forecast/?lat=48.85&lon=2.35 - 5-day forecast
-GET /api/pollution/?lat=48.85&lon=2.35 - Air pollution
+- **GET** ` /api/search/?q=London` - Search cities
+- **GET** ` /api/weather/?lat=48.85&lon=2.35` - Current weather
+- **GET** ` /api/forecast/?lat=48.85&lon=2.35` - 5-day forecast
+- **GET** ` /api/pollution/?lat=48.85&lon=2.35` - Air pollution
 
 ### Favorites (Requires Login)
-GET /api/favorites/ - Get all favorites
-POST /api/favorites/add/ - Add favorite
-DELETE /api/favorites/delete/1/ - Delete favorite
+- **GET** ` /api/favorites/` - Get all favorites
+- **POST** ` /api/favorites/add/` - Add favorite
+- **DELETE** ` /api/favorites/delete/1/` - Delete favorite
 
 ### Weather Alerts (Requires Login)
-GET /api/alerts/ - Get all alerts
-POST /api/alerts/create/ - Create alert
-PUT /api/alerts/toggle/1/ - Toggle alert on/off
-DELETE /api/alerts/delete/1/ - Delete alert
-GET /api/alerts/check/1/ - Check triggered alerts
+- **GET** ` /api/alerts/` - Get all alerts
+- **POST** ` /api/alerts/create/` - Create alert
+- **PUT** ` /api/alerts/toggle/1/` - Toggle alert on/off
+- **DELETE** ` /api/alerts/delete/1/` - Delete alert
+- **GET** ` /api/alerts/check/1/` - Check triggered alerts
 
 ## Testing
 ```

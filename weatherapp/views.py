@@ -258,3 +258,207 @@ def delete_favorite(request, favorite_id):
         'success': False,
         'error': 'Use DELETE'
     }, status=405)
+    
+@login_required
+@csrf_exempt
+def create_alert(request):
+    # create a weather alert
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        
+        city_id = data.get('city_id')
+        alert_type = data.get('alert_type')
+        threshold = data.get('threshold')
+        
+        if not city_id or not alert_type or not threshold:
+            return JsonResponse({
+                'success': False,
+                'error': 'Missing fields'
+            }, status=400)
+        
+        try:
+            city = City.objects.get(id=city_id)
+        except City.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'City not found'
+            }, status=404)
+        
+        alert = WeatherAlert.objects.create(
+            user=request.user,
+            city=city,
+            alert_type=alert_type,
+            threshold=threshold
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'alert_id': alert.id,
+            'alert_type': alert.get_alert_type_display(),
+            'city': city.name,
+            'threshold': alert.threshold
+        }, status=201)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Use POST'
+    }, status=405)
+
+@login_required
+@csrf_exempt
+def get_alerts(request):
+    # get all alerts for logged-in user
+    if request.method == 'GET':
+        alerts = WeatherAlert.objects.filter(user=request.user, is_active=True).select_related('city')
+        
+        data = []
+        for alert in alerts:
+            data.append({
+                'id': alert.id,
+                'city_id': alert.city.id,
+                'city_name': alert.city.name,
+                'country': alert.city.country,
+                'alert_type': alert.alert_type,
+                'alert_type_display': alert.get_alert_type_display(),
+                'threshold': alert.threshold,
+                'is_active': alert.is_active,
+                'created_at': alert.created_at
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'alerts': data
+        })
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Use GET'
+    }, status=405)
+
+@login_required
+@csrf_exempt
+def delete_alert(request, alert_id):
+    # delete an alert
+    if request.method == 'DELETE':
+        try:
+            alert = WeatherAlert.objects.get(id=alert_id, user=request.user)
+            alert.delete()
+            return JsonResponse({
+                'success': True,
+                'message': 'Alert deleted'
+            })
+        except WeatherAlert.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Alert not found'
+            }, status=404)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Use DELETE'
+    }, status=405)
+
+@login_required
+@csrf_exempt
+def toggle_alert(request, alert_id):
+    # turn alert on or off
+    if request.method == 'PUT':
+        try:
+            alert = WeatherAlert.objects.get(id=alert_id, user=request.user)
+            alert.is_active = not alert.is_active
+            alert.save()
+            return JsonResponse({
+                'success': True,
+                'is_active': alert.is_active,
+                'message': f"Alert {'activated' if alert.is_active else 'deactivated'}"
+            })
+        except WeatherAlert.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Alert not found'
+            }, status=404)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Use PUT'
+    }, status=405)
+
+@login_required
+@csrf_exempt
+def check_alerts(request, city_id):
+    # check if any alerts are triggered for a city
+    if request.method == 'GET':
+        try:
+            city = City.objects.get(id=city_id)
+        except City.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'City not found'
+            }, status=404)
+        
+        weather_service = OpenWeatherService()
+        weather_result = weather_service.get_current_weather(city.lat, city.lon)
+        
+        if not weather_result['success']:
+            return JsonResponse({
+                'success': False,
+                'error': 'Could not get weather data'
+            }, status=500)
+        
+        current_temp = weather_result['data']['temperature']
+        
+        # get all active alerts for this city and user
+        alerts = WeatherAlert.objects.filter(
+            user=request.user,
+            city=city,
+            is_active=True
+        )
+        
+        triggered = []
+        for alert in alerts:
+            if alert.check_alert(current_temp):
+                triggered.append({
+                    'id': alert.id,
+                    'type': alert.get_alert_type_display(),
+                    'threshold': alert.threshold,
+                    'current': current_temp
+                })
+        
+        return JsonResponse({
+            'success': True,
+            'city': city.name,
+            'current_temp': current_temp,
+            'alerts_triggered': triggered,
+            'total_alerts': len(triggered)
+        })
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Use GET'
+    }, status=405)
+    
+@login_required
+@csrf_exempt
+def get_city_from_favorite(request, favorite_id):
+    # get city details from a favorite
+    if request.method == 'GET':
+        try:
+            fav = FavoriteLocation.objects.get(id=favorite_id, user=request.user)
+            return JsonResponse({
+                'success': True,
+                'city_id': fav.city.id,
+                'name': fav.city.name,
+                'country': fav.city.country,
+                'lat': fav.city.lat,
+                'lon': fav.city.lon
+            })
+        except FavoriteLocation.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Favorite not found'
+            }, status=404)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Use GET'
+    }, status=405)

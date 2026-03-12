@@ -462,3 +462,74 @@ def get_city_from_favorite(request, favorite_id):
         'success': False,
         'error': 'Use GET'
     }, status=405)
+
+@login_required
+@csrf_exempt
+def daily_summary(request):
+    # analytics summary over user's favourites
+    if request.method != 'GET':
+        return JsonResponse({
+            'success': False,
+            'error': 'Use GET'
+        }, status=405)
+
+    favorites = FavoriteLocation.objects.filter(user=request.user).select_related('city')
+
+    if not favorites.exists():
+        return JsonResponse({
+            'success': True,
+            'summary': {
+                'favorite_count': 0,
+                'average_temperature': None,
+                'coldest': None,
+                'hottest': None,
+            },
+            'details': [],
+            'message': 'No favorites found for user'
+        })
+
+    details = []
+    temps = []
+
+    for fav in favorites:
+        result = weather.get_current_weather(fav.city.lat, fav.city.lon)
+        if not result.get('success'):
+            continue
+
+        data = result['data']
+        temp = data.get('temperature')
+        if temp is None:
+            continue
+
+        entry = {
+            'favorite_id': fav.id,
+            'city': data.get('city'),
+            'country': data.get('country'),
+            'lat': data.get('lat'),
+            'lon': data.get('lon'),
+            'temperature': temp,
+            'weather': data.get('weather'),
+        }
+        details.append(entry)
+        temps.append((temp, entry))
+
+    if not temps:
+        return JsonResponse({
+            'success': False,
+            'error': 'Could not fetch weather data for any favorites'
+        }, status=502)
+
+    avg_temp = sum(t[0] for t in temps) / len(temps)
+    coldest = min(temps, key=lambda t: t[0])[1]
+    hottest = max(temps, key=lambda t: t[0])[1]
+
+    return JsonResponse({
+        'success': True,
+        'summary': {
+            'favorite_count': len(details),
+            'average_temperature': avg_temp,
+            'coldest': coldest,
+            'hottest': hottest,
+        },
+        'details': details
+    })

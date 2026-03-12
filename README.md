@@ -8,6 +8,7 @@ A RESTful weather API with user authentication, favorites, and weather alerts.
 - Current weather, 5-day forecast, air pollution
 - Save favorite locations
 - Weather alerts with threshold triggers
+- Daily Summary
 
 ## Tech Stack
 - Django 6.0
@@ -45,31 +46,10 @@ python manage.py runserver
 - API Base URL: http://127.0.0.1:8000/api/
 - Admin Interface: http://127.0.0.1:8000/admin/
 
-## API Endpoints
+## API Documentation
 
-### Authentication
-- **POST** ` /api/register/` - Register new user
-- **POST** ` /api/login/` - Login user
-- **POST** ` /api/logout/` - Logout user
-- **GET** ` /api/check-auth/` - Check login status
-
-### Weather Data
-- **GET** ` /api/search/?q=London` - Search cities
-- **GET** ` /api/weather/?lat=48.85&lon=2.35` - Current weather
-- **GET** ` /api/forecast/?lat=48.85&lon=2.35` - 5-day forecast
-- **GET** ` /api/pollution/?lat=48.85&lon=2.35` - Air pollution
-
-### Favorites (Requires Login)
-- **GET** ` /api/favorites/` - Get all favorites
-- **POST** ` /api/favorites/add/` - Add favorite
-- **DELETE** ` /api/favorites/delete/1/` - Delete favorite
-
-### Weather Alerts (Requires Login)
-- **GET** ` /api/alerts/` - Get all alerts
-- **POST** ` /api/alerts/create/` - Create alert
-- **PUT** ` /api/alerts/toggle/1/` - Toggle alert on/off
-- **DELETE** ` /api/alerts/delete/1/` - Delete alert
-- **GET** ` /api/alerts/check/1/` - Check triggered alerts
+Full endpoint, parameter, authentication, and example request/response details:
+- **API Documentation PDF**: `API_Documentation.pdf`  
 
 ## Testing
 ```

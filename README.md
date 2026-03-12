@@ -25,7 +25,7 @@ The API is deployed on PythonAnywhere:
 ## Setup
 #### Clone the repository
 ```
-git clone https://github.com/linngakirain/weather.git
+git clone https://github.com/linngakirain/weather-api.git
 cd weather
 ```
 

@@ -47,3 +47,16 @@ class WeatherAlert(models.Model):
         elif self.alert_type == 'TEMP_HIGH' and current_temp > self.threshold:
             return True
         return False
+
+
+class WeatherSearch(models.Model):
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    city = models.CharField(max_length=163)
+    country = models.CharField(max_length=2, blank=True)
+    lat = models.FloatField()
+    lon = models.FloatField()
+    temperature = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.city}, {self.country} at {self.temperature}°C"

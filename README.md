@@ -8,7 +8,8 @@ A RESTful weather API with user authentication, favorites, and weather alerts.
 - Current weather, 5-day forecast, air pollution
 - Save favorite locations
 - Weather alerts with threshold triggers
-- Daily Summary
+- Daily analytics summary over favourites
+- Weather search history per user
 
 ## Tech Stack
 - Django 6.0

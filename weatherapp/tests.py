@@ -16,6 +16,7 @@ tests = [
     ("POST", "/favorites/add/", {"name": "Paris", "country": "FR", "lat": 48.85, "lon": 2.35}),
     ("GET", "/favorites/", None),
     ("GET", "/analytics/daily-summary/", None),
+    ("GET", "/history/weather/", None),
 ]
 
 for method, endpoint, data in tests:

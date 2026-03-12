@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as django_login, logout
 import json
 from django.contrib.auth.decorators import login_required
-from .models import City, FavoriteLocation, WeatherAlert  # Added WeatherAlert
+from .models import City, FavoriteLocation, WeatherAlert, WeatherSearch
 from .services import OpenWeatherService
 
 weather = OpenWeatherService()
@@ -136,6 +136,17 @@ def current(request):
     lon = float(lon)
     
     result = weather.get_current_weather(lat, lon)
+    # log successful searches for history if possible
+    if result.get('success') and 'data' in result:
+        data = result['data']
+        WeatherSearch.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            city=data.get('city', ''),
+            country=data.get('country', ''),
+            lat=data.get('lat', lat),
+            lon=data.get('lon', lon),
+            temperature=data.get('temperature', 0.0),
+        )
     return JsonResponse(result)
 
 @csrf_exempt
@@ -532,4 +543,34 @@ def daily_summary(request):
             'hottest': hottest,
         },
         'details': details
+    })
+
+
+@login_required
+@csrf_exempt
+def weather_history(request):
+    # history of current weather searches for this user
+    if request.method != 'GET':
+        return JsonResponse({
+            'success': False,
+            'error': 'Use GET'
+        }, status=405)
+
+    searches = WeatherSearch.objects.filter(user=request.user).order_by('-created_at')[:10]
+
+    history = []
+    for s in searches:
+        history.append({
+            'city': s.city,
+            'country': s.country,
+            'lat': s.lat,
+            'lon': s.lon,
+            'temperature': s.temperature,
+            'searched_at': s.created_at,
+        })
+
+    return JsonResponse({
+        'success': True,
+        'count': len(history),
+        'history': history,
     })
